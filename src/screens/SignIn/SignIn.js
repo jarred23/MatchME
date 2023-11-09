@@ -8,29 +8,10 @@ import {
   SafeAreaView,
 } from "react-native";
 import Logo from "../../../assets/images/Logo.png";
-import { appleAuth } from "@invertase/react-native-apple-authentication";
 
 const SignIn = ({ navigation }) => {
   const handleOneButtonClick = () => {
-    // Handle the press event for the "One Button" here
-    // You can add your logic here
-  };
 
-  const handleAppleSignIn = async () => {
-    try {
-      const appleAuthRequestResponse = await appleAuth.performRequest({
-        requestedOperation: appleAuth.Operation.LOGIN,
-        requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
-      });
-
-      // Handle the response and authenticate the user
-      // You can use the appleAuthRequestResponse to obtain user data
-
-      // Redirect to the next screen or handle successful login
-    } catch (error) {
-      console.log("Apple Sign-In error:", error);
-      // Display an error message to the user
-    }
   };
 
   return (
@@ -44,7 +25,7 @@ const SignIn = ({ navigation }) => {
         Policy
       </Text>
       <TouchableOpacity
-        onPress={handleOneButtonClick}
+        onPress={handleGoogleSignIn}
         style={styles.buttonFirst}
       >
         <Text style={styles.buttonTextFirst}>LOG IN WITH GOOGLE</Text>
@@ -57,14 +38,15 @@ const SignIn = ({ navigation }) => {
         <Text style={styles.buttonTextSecond}>LOG IN WITH APPLE</Text>
       </TouchableOpacity>
       <View style={{ height: 7 }} />
-      <TouchableOpacity onPress={handleAppleSignIn} style={styles.buttonThird}>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("SignUp")}
+        style={styles.buttonThird}
+      >
         <Text style={styles.buttonTextThird}>LOG IN WITH NUMBER</Text>
       </TouchableOpacity>
       <View style={{ height: 7 }} />
       <TouchableOpacity>
-        <Text onPress={() => navigation.navigate("ForgotPassword")}>
-          Trouble logging In?
-        </Text>
+        <Text onPress={() => navigation.navigate("ForgotPassword")}>Trouble logging In?</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -139,3 +121,24 @@ const styles = StyleSheet.create({
 });
 
 export default SignIn;
+
+
+
+
+const handleGoogleSignIn = async () => {
+  try {
+    await GoogleSignin.hasPlayServices();
+    const userInfo = await GoogleSignin.signIn();
+    // You can now use the userInfo to authenticate the user or navigate to the next screen.
+  } catch (error) {
+    if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+      // User cancelled the sign-in process
+    } else if (error.code === statusCodes.IN_PROGRESS) {
+      // Operation (e.g., sign-in) is in progress already
+    } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+      // Play services are not available
+    } else {
+      console.log("Error:", error);
+    }
+  }
+};
